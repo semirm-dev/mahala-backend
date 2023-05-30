@@ -13,7 +13,7 @@ import (
 
 func TestVoteHandler(t *testing.T) {
 	router := web.NewRouter()
-	ticketSender := voting.NewTicketSender(voting.FakeVoterIDValidator, voting.FakeVoteWriter)
+	ticketSender := voting.NewTicketSender(voting.fakeVoterIDValidator, voting.fakeVoteWriter)
 	router.POST("/", voting.VoteHandler(ticketSender))
 
 	payload := `{"voterID": "voter-123", "voteFor": "candidate-123"}`

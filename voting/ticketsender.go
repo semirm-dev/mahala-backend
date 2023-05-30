@@ -3,34 +3,35 @@ package voting
 import "github.com/sirupsen/logrus"
 
 type TicketSender struct {
-	validateVoterID VoterIDValidator
-	vote            VoteWriter
+	validateVoterID VoterIDValidatorFunc
+	vote            VoteWriterFunc
 }
 
-// VoterIDValidator will validate voter's ID.
-type VoterIDValidator func(voterID string) error
+// VoterIDValidatorFunc will validate voter's ID.
+type VoterIDValidatorFunc func(voterID string) error
 
-// VoteWriter will send voting ticket to voting service
-type VoteWriter func(ticket Ticket) error
+// VoteWriterFunc will send voting ticket to voting service
+type VoteWriterFunc func(ticket Ticket) error
 
 type Ticket struct {
-	VoterID  string `json:"voterID"`
-	VotedFor string `json:"votedFor"`
+	VoterID string `json:"voterID"`
+	VoteFor string `json:"voteFor"`
 }
 
-func NewTicketSender(voterIDValidator VoterIDValidator, voteWriter VoteWriter) TicketSender {
+func NewTicketSender(voterIDValidator VoterIDValidatorFunc, voteWriter VoteWriterFunc) TicketSender {
 	return TicketSender{
 		validateVoterID: voterIDValidator,
 		vote:            voteWriter,
 	}
 }
 
+// Send voting ticket to voting service
 func (s TicketSender) Send(ticket Ticket) error {
 	if err := s.validateVoterID(ticket.VoterID); err != nil {
 		return err
 	}
 
-	logrus.Infof("voter %s voting for %s", ticket.VoterID, ticket.VotedFor)
+	logrus.Infof("voter %s voting for %s", ticket.VoterID, ticket.VoteFor)
 
 	return s.vote(ticket)
 }

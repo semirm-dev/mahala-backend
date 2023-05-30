@@ -1,5 +1,5 @@
 package voting
 
-func FakeVoterIDValidator(voterID string) error {
+func VoterIDValidator(voterID string) error {
 	return nil
 }

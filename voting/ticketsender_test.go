@@ -8,26 +8,34 @@ import (
 	"testing"
 )
 
+func fakeVoteWriter(ticket voting.Ticket) error {
+	return nil
+}
+
+func fakeVoterIDValidator(voterID string) error {
+	return nil
+}
+
 func TestTicketSender_Send(t *testing.T) {
 	testTable := map[string]struct {
-		voterIdValidator voting.VoterIDValidator
-		voteWriter       voting.VoteWriter
+		voterIdValidator voting.VoterIDValidatorFunc
+		voteWriter       voting.VoteWriterFunc
 		expectedErr      error
 	}{
 		"ticket successfully sent": {
-			voterIdValidator: voting.FakeVoterIDValidator,
-			voteWriter:       voting.FakeVoteWriter,
+			voterIdValidator: fakeVoterIDValidator,
+			voteWriter:       fakeVoteWriter,
 			expectedErr:      nil,
 		},
 		"voter id validator with error should return error": {
 			voterIdValidator: func(voterID string) error {
 				return errors.New(fmt.Sprintf("voter id is invalid"))
 			},
-			voteWriter:  voting.FakeVoteWriter,
+			voteWriter:  fakeVoteWriter,
 			expectedErr: errors.New(fmt.Sprintf("voter id is invalid")),
 		},
 		"vote writer with error should return error": {
-			voterIdValidator: voting.FakeVoterIDValidator,
+			voterIdValidator: fakeVoterIDValidator,
 			voteWriter: func(ticket voting.Ticket) error {
 				return errors.New("vote writer failed")
 			},
