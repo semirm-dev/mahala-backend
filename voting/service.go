@@ -18,7 +18,8 @@ type QueryVoteFilter struct {
 }
 
 type DataStore interface {
-	Store(vote Vote) error
+	Store(candidate string, votes []Vote) error
+	Get(candidate string) ([]Vote, error)
 }
 
 func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.Hub) {
@@ -40,10 +41,18 @@ func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.H
 					errors <- err
 				}
 
-				if err := dataStore.Store(Vote{
+				votes, err := dataStore.Get(ticket.VoteFor)
+				if err != nil {
+					errors <- err
+					continue
+				}
+
+				votes = append(votes, Vote{
 					Candidate: ticket.VoteFor,
 					VoterID:   ticket.VoterID,
-				}); err != nil {
+				})
+
+				if err := dataStore.Store(ticket.VoteFor, votes); err != nil {
 					errors <- err
 					continue
 				}
