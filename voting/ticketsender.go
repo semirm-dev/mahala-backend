@@ -14,8 +14,8 @@ type VoterIDValidatorFunc func(voterID string) error
 type VoteWriterFunc func(ticket Ticket) error
 
 type Ticket struct {
-	VoterID string `json:"voterID"`
 	VoteFor string `json:"voteFor"`
+	VoterID string `json:"voterID"`
 }
 
 func NewTicketSender(voterIDValidator VoterIDValidatorFunc, voteWriter VoteWriterFunc) TicketSender {

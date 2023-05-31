@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gobackpack/rmq"
 	"github.com/semirm-dev/mahala/internal/pubsub"
+	"github.com/semirm-dev/mahala/internal/redis"
 	"github.com/semirm-dev/mahala/internal/web"
 	"github.com/semirm-dev/mahala/voting"
 	"github.com/sirupsen/logrus"
@@ -40,7 +41,10 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	dataStore := voting.RedisStorage{}
+	redisConf := redis.NewConfig()
+	redisClient := redis.NewClient(redisConf)
+	dataStore := voting.NewRedisStorage(redisClient)
+
 	pubsub.Listen(hubCtx, hub, voting.VotedEventHandler(dataStore))
 
 	publisher := pubsub.NewPublisher(hubCtx, hub, voting.Bus, []string{voting.EventVoted})

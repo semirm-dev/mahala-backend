@@ -9,8 +9,8 @@ import (
 )
 
 type Vote struct {
-	VoterID   string
-	Candidate string
+	Candidate string `json:"candidate"`
+	VoterID   string `json:"voterID"`
 }
 
 type QueryVoteFilter struct {
@@ -41,8 +41,8 @@ func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.H
 				}
 
 				if err := dataStore.Store(Vote{
-					VoterID:   ticket.VoterID,
 					Candidate: ticket.VoteFor,
+					VoterID:   ticket.VoterID,
 				}); err != nil {
 					errors <- err
 					continue

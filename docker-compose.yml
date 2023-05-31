@@ -9,6 +9,12 @@ services:
       - "15672:15672"
     networks:
       - mahala
+  redis:
+    image: "redis"
+    ports:
+      - "6379:6379"
+    networks:
+      - mahala
 volumes:
   db:
 networks:
