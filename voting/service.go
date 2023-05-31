@@ -26,8 +26,8 @@ type DataStore interface {
 	GetProcessedVoters() ([]string, error)
 }
 
-// VotedEventHandler Reacts to EventVoted event. It will handle all votes requests, store votes in datastore.
-func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.Hub) {
+// HandleVotedEvent reacts to EventVoted event. It will handle all votes requests, store votes in datastore.
+func HandleVotedEvent(dataStore DataStore) func(ctx context.Context, hub *rmq.Hub) {
 	return func(ctx context.Context, hub *rmq.Hub) {
 		defer logrus.Warnf("%s consumer closed", EventVoted)
 

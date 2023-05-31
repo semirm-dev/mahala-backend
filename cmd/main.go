@@ -46,7 +46,7 @@ func main() {
 	redisClient := redis.NewClient(redisConf)
 	dataStore := voting.NewRedisStorage(redisClient)
 
-	pubsub.Listen(hubCtx, hub, voting.VotedEventHandler(dataStore))
+	pubsub.Listen(hubCtx, hub, voting.HandleVotedEvent(dataStore))
 
 	publisher := pubsub.NewPublisher(hubCtx, hub, voting.Bus, []string{voting.EventVoted})
 	voteWriter := voting.PubSubVoteWriter(publisher)
