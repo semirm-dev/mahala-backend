@@ -40,15 +40,16 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	pubsub.Listen(hubCtx, hub, voting.VotedEventHandler)
+	dataStore := voting.RedisStorage{}
+	pubsub.Listen(hubCtx, hub, voting.VotedEventHandler(dataStore))
 
 	publisher := pubsub.NewPublisher(hubCtx, hub, voting.Bus, []string{voting.EventVoted})
 	voteWriter := voting.PubSubVoteWriter(publisher)
-
 	ticketSender := voting.NewTicketSender(voting.VoterIDValidator, voteWriter)
 
 	votes := api.Group("votes")
 	votes.POST("", voting.VoteHandler(ticketSender))
+	votes.GET("", voting.QueryVoteHandler())
 
 	web.ServeHttp(*httpAddr, "api", router)
 }
