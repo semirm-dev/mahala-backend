@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-type VoteResponse struct {
-	Successful bool `json:"successful"`
+type HandlerResponse struct {
+	Message string `json:"message"`
 }
 
 type QueryVotesResponse struct {
@@ -19,17 +19,17 @@ func VoteHandler(ticketSender TicketSender) gin.HandlerFunc {
 		var ticket Ticket
 		if err := c.ShouldBindJSON(&ticket); err != nil {
 			logrus.Error(err)
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
 			return
 		}
 
 		if err := ticketSender.Send(ticket); err != nil {
 			logrus.Error(err)
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, VoteResponse{Successful: true})
+		c.JSON(http.StatusOK, HandlerResponse{Message: "vote successful"})
 	}
 }
 
@@ -38,14 +38,14 @@ func QueryVoteHandler() gin.HandlerFunc {
 		var filter QueryVoteFilter
 		if err := c.ShouldBindJSON(&filter); err != nil {
 			logrus.Error(err)
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
 			return
 		}
 
 		votes, err := QueryVotes(filter)
 		if err != nil {
 			logrus.Error(err)
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
 			return
 		}
 

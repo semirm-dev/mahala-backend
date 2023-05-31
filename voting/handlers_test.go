@@ -13,7 +13,7 @@ import (
 
 func TestVoteHandler(t *testing.T) {
 	router := web.NewRouter()
-	ticketSender := voting.NewTicketSender(voting.fakeVoterIDValidator, voting.fakeVoteWriter)
+	ticketSender := voting.NewTicketSender(fakeVoterIDValidator, fakeVoteWriter)
 	router.POST("/", voting.VoteHandler(ticketSender))
 
 	payload := `{"voterID": "voter-123", "voteFor": "candidate-123"}`
@@ -24,8 +24,8 @@ func TestVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := voting.VoteResponse{Successful: true}
-	var voteResponse voting.VoteResponse
+	expectedResponse := voting.HandlerResponse{Message: "vote successful"}
+	var voteResponse voting.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&voteResponse)
 	assert.NoError(t, err)

@@ -20,8 +20,10 @@ type QueryVoteFilter struct {
 
 // DataStore is used to store votes
 type DataStore interface {
-	Store(candidate string, votes []Vote) error
-	Get(candidate string) ([]Vote, error)
+	StoreVote(candidate string, votes []Vote) error
+	GetVotes(candidate string) ([]Vote, error)
+	SetVoterAsProcessed(voterID string) error
+	GetProcessedVoters() ([]string, error)
 }
 
 // VotedEventHandler Reacts to EventVoted event. It will handle all votes requests, store votes in datastore.
@@ -44,23 +46,17 @@ func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.H
 					errors <- err
 				}
 
-				votes, err := dataStore.Get(ticket.VoteFor)
-				if err != nil {
-					errors <- err
-					continue
-				}
-
-				votes = append(votes, Vote{
-					Candidate: ticket.VoteFor,
-					VoterID:   ticket.VoterID,
-				})
-
-				if err := dataStore.Store(ticket.VoteFor, votes); err != nil {
+				if err := vote(dataStore, ticket); err != nil {
 					errors <- err
 					continue
 				}
 
 				logrus.Infof("[%s] - user %s successfully voted for %s", EventVoted, ticket.VoterID, ticket.VoteFor)
+
+				if err := setVoterAsProcessed(dataStore, ticket.VoterID); err != nil {
+					errors <- err
+					continue
+				}
 			case err := <-consumer.OnError:
 				errors <- err
 			case <-ctx.Done():
@@ -84,4 +80,37 @@ func handleErrors(ctx context.Context, errors chan error) {
 			logrus.Error(err)
 		}
 	}
+}
+
+func vote(dataStore DataStore, ticket Ticket) error {
+	votes, err := dataStore.GetVotes(ticket.VoteFor)
+	if err != nil {
+		return err
+	}
+
+	votes = append(votes, Vote{
+		Candidate: ticket.VoteFor,
+		VoterID:   ticket.VoterID,
+	})
+
+	return dataStore.StoreVote(ticket.VoteFor, votes)
+}
+
+func setVoterAsProcessed(dataStore DataStore, voterID string) error {
+	return dataStore.SetVoterAsProcessed(voterID)
+}
+
+func hasVoted(dataStore DataStore, voterID string) (bool, error) {
+	voters, err := dataStore.GetProcessedVoters()
+	if err != nil {
+		return false, err
+	}
+
+	for _, voter := range voters {
+		if voter == voterID {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
