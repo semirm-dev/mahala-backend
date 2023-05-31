@@ -3,12 +3,12 @@ package voting
 import "github.com/sirupsen/logrus"
 
 type TicketSender struct {
-	validateVoterID VoterIDValidatorFunc
-	vote            VoteWriterFunc
+	validateVoter VoterValidatorFunc
+	vote          VoteWriterFunc
 }
 
-// VoterIDValidatorFunc will validate voter (ID...).
-type VoterIDValidatorFunc func(voterID string) error
+// VoterValidatorFunc will validate voter (ID checks, has already voted...).
+type VoterValidatorFunc func(voterID string) error
 
 // VoteWriterFunc will send voting ticket to voting service
 type VoteWriterFunc func(ticket Ticket) error
@@ -18,16 +18,16 @@ type Ticket struct {
 	VoterID string `json:"voterID"`
 }
 
-func NewTicketSender(voterIDValidator VoterIDValidatorFunc, voteWriter VoteWriterFunc) TicketSender {
+func NewTicketSender(voterIDValidator VoterValidatorFunc, voteWriter VoteWriterFunc) TicketSender {
 	return TicketSender{
-		validateVoterID: voterIDValidator,
-		vote:            voteWriter,
+		validateVoter: voterIDValidator,
+		vote:          voteWriter,
 	}
 }
 
 // Send voting ticket to voting service
 func (s TicketSender) Send(ticket Ticket) error {
-	if err := s.validateVoterID(ticket.VoterID); err != nil {
+	if err := s.validateVoter(ticket.VoterID); err != nil {
 		return err
 	}
 

@@ -18,7 +18,7 @@ func fakeVoterIDValidator(voterID string) error {
 
 func TestTicketSender_Send(t *testing.T) {
 	testTable := map[string]struct {
-		voterIdValidator voting.VoterIDValidatorFunc
+		voterIdValidator voting.VoterValidatorFunc
 		voteWriter       voting.VoteWriterFunc
 		expectedErr      error
 	}{

@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func VoterIDValidator(dataStore DataStore) VoterIDValidatorFunc {
+func VoterValidator(dataStore DataStore) VoterValidatorFunc {
 	return func(voterID string) error {
 		voted, err := hasVoted(dataStore, voterID)
 		if err != nil {

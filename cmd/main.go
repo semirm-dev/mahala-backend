@@ -49,7 +49,7 @@ func main() {
 
 	publisher := pubsub.NewPublisher(hubCtx, hub, voting.Bus, []string{voting.EventVoted})
 	voteWriter := voting.PubSubVoteWriter(publisher)
-	ticketSender := voting.NewTicketSender(voting.VoterIDValidator(dataStore), voteWriter)
+	ticketSender := voting.NewTicketSender(voting.VoterValidator(dataStore), voteWriter)
 
 	votes := api.Group("votes")
 	votes.POST("", voting.VoteHandler(ticketSender))
