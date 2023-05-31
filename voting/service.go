@@ -13,15 +13,18 @@ type Vote struct {
 	VoterID   string `json:"voterID"`
 }
 
+// QueryVoteFilter is filter when querying votes.
 type QueryVoteFilter struct {
 	Candidate string `json:"candidate"`
 }
 
+// DataStore is used to store votes
 type DataStore interface {
 	Store(candidate string, votes []Vote) error
 	Get(candidate string) ([]Vote, error)
 }
 
+// VotedEventHandler Reacts to EventVoted event. It will handle all votes requests, store votes in datastore.
 func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.Hub) {
 	return func(ctx context.Context, hub *rmq.Hub) {
 		defer logrus.Warnf("%s consumer closed", EventVoted)
@@ -67,6 +70,7 @@ func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.H
 	}
 }
 
+// QueryVotes returns either all or filtered votes.
 func QueryVotes(filter QueryVoteFilter) ([]Vote, error) {
 	return nil, nil
 }

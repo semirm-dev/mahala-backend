@@ -7,7 +7,7 @@ type TicketSender struct {
 	vote            VoteWriterFunc
 }
 
-// VoterIDValidatorFunc will validate voter's ID.
+// VoterIDValidatorFunc will validate voter (ID...).
 type VoterIDValidatorFunc func(voterID string) error
 
 // VoteWriterFunc will send voting ticket to voting service
