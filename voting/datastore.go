@@ -7,6 +7,7 @@ import (
 
 const (
 	processedVotersKey = "processed_voters"
+	candidatesKey      = "candidates"
 )
 
 type RedisStorage struct {
@@ -43,16 +44,9 @@ func (r RedisStorage) GetVotes(candidate string) ([]Vote, error) {
 }
 
 func (r RedisStorage) SetVoterAsProcessed(voterID string) error {
-	processedVoters, err := r.redisClient.Get(processedVotersKey)
-	if err != nil && err != redis.ErrNotExists {
+	processed, err := r.getProcessedVoters()
+	if err != nil {
 		return err
-	}
-
-	var processed []string
-	if len(processedVoters) > 0 {
-		if err := json.Unmarshal(processedVoters, &processed); err != nil {
-			return err
-		}
 	}
 
 	processed = append(processed, voterID)
@@ -64,6 +58,28 @@ func (r RedisStorage) SetVoterAsProcessed(voterID string) error {
 }
 
 func (r RedisStorage) GetProcessedVoters() ([]string, error) {
+	return r.getProcessedVoters()
+}
+
+func (r RedisStorage) AddCandidate(candidate string) error {
+	candidates, err := r.getCandidates()
+	if err != nil {
+		return err
+	}
+
+	candidates = append(candidates, candidate)
+
+	return r.redisClient.Add(redis.Item{
+		Key:   candidatesKey,
+		Value: candidates,
+	})
+}
+
+func (r RedisStorage) GetCandidates() ([]string, error) {
+	return r.getCandidates()
+}
+
+func (r RedisStorage) getProcessedVoters() ([]string, error) {
 	processedVoters, err := r.redisClient.Get(processedVotersKey)
 	if err != nil && err != redis.ErrNotExists {
 		return nil, err
@@ -77,4 +93,19 @@ func (r RedisStorage) GetProcessedVoters() ([]string, error) {
 	}
 
 	return processed, nil
+}
+
+func (r RedisStorage) getCandidates() ([]string, error) {
+	existingCandidates, err := r.redisClient.Get(candidatesKey)
+	if err != nil && err != redis.ErrNotExists {
+		return nil, err
+	}
+
+	var candidates []string
+	if len(existingCandidates) > 0 {
+		if err := json.Unmarshal(existingCandidates, &candidates); err != nil {
+			return nil, err
+		}
+	}
+	return candidates, nil
 }

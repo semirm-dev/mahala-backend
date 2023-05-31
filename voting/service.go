@@ -67,8 +67,13 @@ func VotedEventHandler(dataStore DataStore) func(ctx context.Context, hub *rmq.H
 }
 
 // QueryVotes returns either all or filtered votes.
-func QueryVotes(filter QueryVoteFilter) ([]Vote, error) {
-	return nil, nil
+func QueryVotes(dataStore DataStore, filter QueryVoteFilter) ([]Vote, error) {
+	votes, err := dataStore.GetVotes(filter.Candidate)
+	if err != nil {
+		return nil, err
+	}
+
+	return votes, nil
 }
 
 func handleErrors(ctx context.Context, errors chan error) {

@@ -33,7 +33,7 @@ func VoteHandler(ticketSender TicketSender) gin.HandlerFunc {
 	}
 }
 
-func QueryVoteHandler() gin.HandlerFunc {
+func QueryVoteHandler(dataStore DataStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var filter QueryVoteFilter
 		if err := c.ShouldBindJSON(&filter); err != nil {
@@ -42,7 +42,7 @@ func QueryVoteHandler() gin.HandlerFunc {
 			return
 		}
 
-		votes, err := QueryVotes(filter)
+		votes, err := QueryVotes(dataStore, filter)
 		if err != nil {
 			logrus.Error(err)
 			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})

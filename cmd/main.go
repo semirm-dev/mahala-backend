@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/gin-gonic/gin"
 	"github.com/gobackpack/rmq"
+	"github.com/semirm-dev/mahala/candidate"
 	"github.com/semirm-dev/mahala/internal/pubsub"
 	"github.com/semirm-dev/mahala/internal/redis"
 	"github.com/semirm-dev/mahala/internal/web"
@@ -53,7 +54,11 @@ func main() {
 
 	votes := api.Group("votes")
 	votes.POST("", voting.VoteHandler(ticketSender))
-	votes.GET("", voting.QueryVoteHandler())
+	votes.GET("", voting.QueryVoteHandler(dataStore))
+
+	candidates := api.Group("candidates")
+	candidates.POST("", candidate.AddCandidateHandler(dataStore))
+	candidates.GET("", candidate.GetCandidatesHandler(dataStore))
 
 	web.ServeHttp(*httpAddr, "api", router)
 }
