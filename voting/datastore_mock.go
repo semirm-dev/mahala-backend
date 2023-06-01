@@ -3,6 +3,7 @@ package voting
 type MockDataStore struct {
 	Votes           []Vote
 	ProcessedVoters []string
+	Candidates      []string
 }
 
 func (ds *MockDataStore) StoreVote(candidate string, votes []Vote) error {
@@ -29,4 +30,13 @@ func (ds *MockDataStore) SetVoterAsProcessed(voterID string) error {
 
 func (ds *MockDataStore) GetProcessedVoters() ([]string, error) {
 	return ds.ProcessedVoters, nil
+}
+
+func (ds *MockDataStore) AddCandidate(candidate string) error {
+	ds.Candidates = append(ds.Candidates, candidate)
+	return nil
+}
+
+func (ds *MockDataStore) GetCandidates() ([]string, error) {
+	return ds.Candidates, nil
 }

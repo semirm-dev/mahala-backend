@@ -1,4 +1,4 @@
-package candidate
+package candidates
 
 import "errors"
 
@@ -12,7 +12,7 @@ type DataStore interface {
 	GetCandidates() ([]string, error)
 }
 
-// RegisterNew will add/create new candidate.
+// RegisterNew new candidate.
 func RegisterNew(dataStore DataStore, candidate string) error {
 	existingCandidates, err := dataStore.GetCandidates()
 	if err != nil {
@@ -28,7 +28,7 @@ func RegisterNew(dataStore DataStore, candidate string) error {
 	return dataStore.AddCandidate(candidate)
 }
 
-// GetAllCandidates currently registered.
-func GetAllCandidates(dataStore DataStore) ([]string, error) {
+// GetAll currently registered candidates.
+func GetAll(dataStore DataStore) ([]string, error) {
 	return dataStore.GetCandidates()
 }

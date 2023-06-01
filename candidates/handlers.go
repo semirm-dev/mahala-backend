@@ -1,4 +1,4 @@
-package candidate
+package candidates
 
 import (
 	"fmt"
@@ -34,9 +34,9 @@ func AddCandidateHandler(dataStore DataStore) gin.HandlerFunc {
 	}
 }
 
-func GetCandidatesHandler(dataStore DataStore) gin.HandlerFunc {
+func GetAllHandler(dataStore DataStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		candidates, err := GetAllCandidates(dataStore)
+		candidates, err := GetAll(dataStore)
 		if err != nil {
 			logrus.Error(err)
 			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
