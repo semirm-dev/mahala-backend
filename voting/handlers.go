@@ -11,7 +11,7 @@ type HandlerResponse struct {
 }
 
 type QueryVotesResponse struct {
-	Votes []Vote `json:"votes"`
+	Votes []Vote `json:"Votes"`
 }
 
 func VoteHandler(ticketSender TicketSender) gin.HandlerFunc {

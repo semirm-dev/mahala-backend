@@ -33,8 +33,8 @@ func TestVoteHandler(t *testing.T) {
 }
 
 func TestQueryVoteHandler(t *testing.T) {
-	dataStore := &mockDataStore{
-		votes: []voting.Vote{
+	dataStore := &voting.MockDataStore{
+		Votes: []voting.Vote{
 			{
 				Candidate: "candidate-1",
 				VoterID:   "voter-123",
@@ -75,35 +75,4 @@ func mockHttpServer(t *testing.T) *httptest.Server {
 		_, err := w.Write(res)
 		assert.Nil(t, err)
 	}))
-}
-
-type mockDataStore struct {
-	votes           []voting.Vote
-	processedVoters []string
-}
-
-func (ds *mockDataStore) StoreVote(candidate string, votes []voting.Vote) error {
-	ds.votes = append(ds.votes, votes...)
-	return nil
-}
-
-func (ds *mockDataStore) GetVotes(candidate string) ([]voting.Vote, error) {
-	var votes []voting.Vote
-
-	for _, vote := range ds.votes {
-		if vote.Candidate == candidate {
-			votes = append(votes, vote)
-		}
-	}
-
-	return votes, nil
-}
-
-func (ds *mockDataStore) SetVoterAsProcessed(voterID string) error {
-	ds.processedVoters = append(ds.processedVoters, voterID)
-	return nil
-}
-
-func (ds *mockDataStore) GetProcessedVoters() ([]string, error) {
-	return ds.processedVoters, nil
 }

@@ -24,8 +24,8 @@ func TestVoterValidator(t *testing.T) {
 
 	for name, tt := range testTable {
 		t.Run(name, func(t *testing.T) {
-			dataStore := &mockDataStore{
-				processedVoters: tt.processedVoters,
+			dataStore := &voting.MockDataStore{
+				ProcessedVoters: tt.processedVoters,
 			}
 
 			voterValidator := voting.VoterValidator(dataStore)
