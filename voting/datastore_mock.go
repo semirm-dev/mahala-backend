@@ -1,5 +1,7 @@
 package voting
 
+import "errors"
+
 type MockDataStore struct {
 	Votes           []Vote
 	ProcessedVoters []string
@@ -39,4 +41,14 @@ func (ds *MockDataStore) AddCandidate(candidateID string) error {
 
 func (ds *MockDataStore) GetCandidates() ([]string, error) {
 	return ds.Candidates, nil
+}
+
+func (ds *MockDataStore) GetCandidate(candidateID string) (string, error) {
+	for _, candidate := range ds.Candidates {
+		if candidate == candidateID {
+			return candidate, nil
+		}
+	}
+
+	return "", errors.New("candidate not found")
 }

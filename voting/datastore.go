@@ -2,6 +2,7 @@ package voting
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/semirm-dev/mahala/internal/redis"
 )
 
@@ -77,6 +78,18 @@ func (r RedisStorage) AddCandidate(candidateID string) error {
 
 func (r RedisStorage) GetCandidates() ([]string, error) {
 	return r.getCandidates()
+}
+
+func (r RedisStorage) GetCandidate(candidateID string) (string, error) {
+	candidate, err := r.redisClient.Get(candidateID)
+	if err != nil {
+		return "", err
+	}
+	if err == redis.ErrNotExists || len(candidate) == 0 {
+		return "", errors.New("candidate not found")
+	}
+
+	return string(candidate), nil
 }
 
 func (r RedisStorage) getProcessedVoters() ([]string, error) {

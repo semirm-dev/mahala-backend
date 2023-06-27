@@ -1,5 +1,7 @@
 package voting
 
+import "errors"
+
 type Vote struct {
 	CandidateID string `json:"candidateID"`
 	VoterID     string `json:"voterID"`
@@ -16,14 +18,24 @@ type DataStore interface {
 	GetVotes(candidateID string) ([]Vote, error)
 	SetVoterAsProcessed(voterID string) error
 	GetProcessedVoters() ([]string, error)
+	GetCandidate(candidateID string) (string, error)
 }
 
 func RegisterVotingTicket(dataStore DataStore, ticket Ticket) error {
-	if err := applyVote(dataStore, ticket); err != nil {
+	existingCandidate, err := dataStore.GetCandidate(ticket.CandidateID)
+	if err != nil {
 		return err
 	}
 
-	if err := setVoterAsProcessed(dataStore, ticket.VoterID); err != nil {
+	if existingCandidate == "" {
+		return errors.New("candidate not found")
+	}
+
+	if err = applyVote(dataStore, ticket); err != nil {
+		return err
+	}
+
+	if err = setVoterAsProcessed(dataStore, ticket.VoterID); err != nil {
 		return err
 	}
 
