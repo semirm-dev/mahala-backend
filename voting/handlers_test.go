@@ -14,7 +14,7 @@ import (
 func TestVoteHandler(t *testing.T) {
 	router := web.NewRouter()
 	ticketSender := voting.NewTicketSender(fakeVoterIDValidator, fakeVoteWriter)
-	router.POST("/", voting.VoteHandler(ticketSender))
+	router.POST("/", voting.SendVoteHandler(ticketSender))
 
 	payload := `{"voterID": "voter-123", "candidateID": "candidate-123"}`
 
@@ -45,7 +45,7 @@ func TestQueryVoteHandler(t *testing.T) {
 	payload := `{"candidateID": "candidate-1"}`
 
 	router := web.NewRouter()
-	router.GET("/", voting.QueryVoteHandler(dataStore))
+	router.GET("/", voting.QueryVotesHandler(dataStore))
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer([]byte(payload)))

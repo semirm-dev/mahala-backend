@@ -15,7 +15,7 @@ import (
 func TestAddCandidateHandler(t *testing.T) {
 	dataStore := &voting.MockDataStore{}
 	router := web.NewRouter()
-	router.POST("/", candidates.AddCandidateHandler(dataStore))
+	router.POST("/", candidates.AddNewHandler(dataStore))
 
 	payload := `{"candidateID": "candidate-1"}`
 

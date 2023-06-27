@@ -53,11 +53,11 @@ func main() {
 	ticketSender := voting.NewTicketSender(voting.VoterValidator(dataStore), voteWriter)
 
 	votesApi := api.Group("votes")
-	votesApi.POST("", voting.VoteHandler(ticketSender))
-	votesApi.GET("", voting.QueryVoteHandler(dataStore))
+	votesApi.POST("", voting.SendVoteHandler(ticketSender))
+	votesApi.GET("", voting.QueryVotesHandler(dataStore))
 
 	candidatesApi := api.Group("candidates")
-	candidatesApi.POST("", candidates.AddCandidateHandler(dataStore))
+	candidatesApi.POST("", candidates.AddNewHandler(dataStore))
 	candidatesApi.GET("", candidates.GetAllHandler(dataStore))
 
 	web.ServeHttp(*httpAddr, "api", router)

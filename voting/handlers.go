@@ -14,7 +14,7 @@ type QueryVotesResponse struct {
 	Votes []Vote `json:"Votes"`
 }
 
-func VoteHandler(ticketSender TicketSender) gin.HandlerFunc {
+func SendVoteHandler(ticketSender TicketSender) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ticket Ticket
 		if err := c.ShouldBindJSON(&ticket); err != nil {
@@ -33,7 +33,7 @@ func VoteHandler(ticketSender TicketSender) gin.HandlerFunc {
 	}
 }
 
-func QueryVoteHandler(dataStore DataStore) gin.HandlerFunc {
+func QueryVotesHandler(dataStore DataStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var filter QueryVoteFilter
 		if err := c.ShouldBindJSON(&filter); err != nil {

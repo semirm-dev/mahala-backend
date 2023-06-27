@@ -15,7 +15,7 @@ type NewCandidateRequest struct {
 	CandidateID string `json:"candidateID"`
 }
 
-func AddCandidateHandler(dataStore DataStore) gin.HandlerFunc {
+func AddNewHandler(dataStore DataStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var candidateRequest NewCandidateRequest
 		if err := c.ShouldBindJSON(&candidateRequest); err != nil {
