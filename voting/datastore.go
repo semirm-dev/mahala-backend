@@ -82,10 +82,7 @@ func (r RedisStorage) GetCandidates() ([]string, error) {
 
 func (r RedisStorage) GetCandidate(candidateID string) (string, error) {
 	candidate, err := r.redisClient.Get(candidateID)
-	if err != nil {
-		return "", err
-	}
-	if err == redis.ErrNotExists || len(candidate) == 0 {
+	if err != nil || err == redis.ErrNotExists || len(candidate) == 0 {
 		return "", errors.New("candidate not found")
 	}
 
