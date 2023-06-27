@@ -34,12 +34,12 @@ func TestTicketSender_Send(t *testing.T) {
 			voteWriter:  fakeVoteWriter,
 			expectedErr: errors.New(fmt.Sprintf("voter id is invalid")),
 		},
-		"vote writer with error should return error": {
+		"applyVote writer with error should return error": {
 			voterIdValidator: fakeVoterIDValidator,
 			voteWriter: func(ticket voting.Ticket) error {
-				return errors.New("vote writer failed")
+				return errors.New("applyVote writer failed")
 			},
-			expectedErr: errors.New("vote writer failed"),
+			expectedErr: errors.New("applyVote writer failed"),
 		},
 	}
 

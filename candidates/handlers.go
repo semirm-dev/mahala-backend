@@ -12,7 +12,7 @@ type HandlerResponse struct {
 }
 
 type NewCandidateRequest struct {
-	Candidate string `json:"candidate"`
+	CandidateID string `json:"candidateID"`
 }
 
 func AddCandidateHandler(dataStore DataStore) gin.HandlerFunc {
@@ -24,13 +24,13 @@ func AddCandidateHandler(dataStore DataStore) gin.HandlerFunc {
 			return
 		}
 
-		if err := RegisterNew(dataStore, candidateRequest.Candidate); err != nil {
+		if err := RegisterNew(dataStore, candidateRequest.CandidateID); err != nil {
 			logrus.Error(err)
 			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, HandlerResponse{Message: fmt.Sprintf("candidate %s created", candidateRequest.Candidate)})
+		c.JSON(http.StatusOK, HandlerResponse{Message: fmt.Sprintf("candidate %s created", candidateRequest.CandidateID)})
 	}
 }
 

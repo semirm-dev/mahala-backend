@@ -1,25 +1,25 @@
 package voting
 
 type Vote struct {
-	Candidate string `json:"candidate"`
-	VoterID   string `json:"voterID"`
+	CandidateID string `json:"candidateID"`
+	VoterID     string `json:"voterID"`
 }
 
 // QueryVoteFilter is filter when querying Votes.
 type QueryVoteFilter struct {
-	Candidate string `json:"candidate"`
+	CandidateID string `json:"candidateID"`
 }
 
 // DataStore is used to store Votes
 type DataStore interface {
-	StoreVote(candidate string, votes []Vote) error
-	GetVotes(candidate string) ([]Vote, error)
+	StoreVote(candidateID string, votes []Vote) error
+	GetVotes(candidateID string) ([]Vote, error)
 	SetVoterAsProcessed(voterID string) error
 	GetProcessedVoters() ([]string, error)
 }
 
 func RegisterVotingTicket(dataStore DataStore, ticket Ticket) error {
-	if err := vote(dataStore, ticket); err != nil {
+	if err := applyVote(dataStore, ticket); err != nil {
 		return err
 	}
 
@@ -32,7 +32,7 @@ func RegisterVotingTicket(dataStore DataStore, ticket Ticket) error {
 
 // QueryVotes returns either all or filtered Votes.
 func QueryVotes(dataStore DataStore, filter QueryVoteFilter) ([]Vote, error) {
-	votes, err := dataStore.GetVotes(filter.Candidate)
+	votes, err := dataStore.GetVotes(filter.CandidateID)
 	if err != nil {
 		return nil, err
 	}
@@ -40,18 +40,18 @@ func QueryVotes(dataStore DataStore, filter QueryVoteFilter) ([]Vote, error) {
 	return votes, nil
 }
 
-func vote(dataStore DataStore, ticket Ticket) error {
-	votes, err := dataStore.GetVotes(ticket.VoteFor)
+func applyVote(dataStore DataStore, ticket Ticket) error {
+	votes, err := dataStore.GetVotes(ticket.CandidateID)
 	if err != nil {
 		return err
 	}
 
 	votes = append(votes, Vote{
-		Candidate: ticket.VoteFor,
-		VoterID:   ticket.VoterID,
+		CandidateID: ticket.CandidateID,
+		VoterID:     ticket.VoterID,
 	})
 
-	return dataStore.StoreVote(ticket.VoteFor, votes)
+	return dataStore.StoreVote(ticket.CandidateID, votes)
 }
 
 func setVoterAsProcessed(dataStore DataStore, voterID string) error {

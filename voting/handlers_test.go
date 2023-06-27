@@ -16,7 +16,7 @@ func TestVoteHandler(t *testing.T) {
 	ticketSender := voting.NewTicketSender(fakeVoterIDValidator, fakeVoteWriter)
 	router.POST("/", voting.VoteHandler(ticketSender))
 
-	payload := `{"voterID": "voter-123", "voteFor": "candidate-123"}`
+	payload := `{"voterID": "voter-123", "candidateID": "candidate-123"}`
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer([]byte(payload)))
@@ -24,7 +24,7 @@ func TestVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := voting.HandlerResponse{Message: "vote successful"}
+	expectedResponse := voting.HandlerResponse{Message: "successfully voted"}
 	var voteResponse voting.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&voteResponse)
@@ -36,13 +36,13 @@ func TestQueryVoteHandler(t *testing.T) {
 	dataStore := &voting.MockDataStore{
 		Votes: []voting.Vote{
 			{
-				Candidate: "candidate-1",
-				VoterID:   "voter-123",
+				CandidateID: "candidate-1",
+				VoterID:     "voter-123",
 			},
 		},
 	}
 
-	payload := `{"candidate": "candidate-1"}`
+	payload := `{"candidateID": "candidate-1"}`
 
 	router := web.NewRouter()
 	router.GET("/", voting.QueryVoteHandler(dataStore))
@@ -56,8 +56,8 @@ func TestQueryVoteHandler(t *testing.T) {
 	expectedResponse := voting.QueryVotesResponse{
 		Votes: []voting.Vote{
 			{
-				Candidate: "candidate-1",
-				VoterID:   "voter-123",
+				CandidateID: "candidate-1",
+				VoterID:     "voter-123",
 			},
 		},
 	}

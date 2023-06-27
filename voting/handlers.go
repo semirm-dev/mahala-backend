@@ -29,7 +29,7 @@ func VoteHandler(ticketSender TicketSender) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, HandlerResponse{Message: "vote successful"})
+		c.JSON(http.StatusOK, HandlerResponse{Message: "successfully voted"})
 	}
 }
 

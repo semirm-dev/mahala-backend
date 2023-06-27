@@ -17,7 +17,7 @@ func TestAddCandidateHandler(t *testing.T) {
 	router := web.NewRouter()
 	router.POST("/", candidates.AddCandidateHandler(dataStore))
 
-	payload := `{"candidate": "candidate-1"}`
+	payload := `{"candidateID": "candidate-1"}`
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer([]byte(payload)))

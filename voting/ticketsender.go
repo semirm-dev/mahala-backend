@@ -14,8 +14,8 @@ type VoterValidatorFunc func(voterID string) error
 type VoteWriterFunc func(ticket Ticket) error
 
 type Ticket struct {
-	VoteFor string `json:"voteFor"`
-	VoterID string `json:"voterID"`
+	CandidateID string `json:"candidateID"`
+	VoterID     string `json:"voterID"`
 }
 
 func NewTicketSender(voterIDValidator VoterValidatorFunc, voteWriter VoteWriterFunc) TicketSender {
@@ -31,7 +31,7 @@ func (s TicketSender) Send(ticket Ticket) error {
 		return err
 	}
 
-	logrus.Infof("voter %s voting for %s", ticket.VoterID, ticket.VoteFor)
+	logrus.Infof("voter %s voting for %s", ticket.VoterID, ticket.CandidateID)
 
 	return s.vote(ticket)
 }

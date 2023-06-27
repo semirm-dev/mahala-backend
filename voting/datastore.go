@@ -20,15 +20,15 @@ func NewRedisStorage(redisClient *redis.Client) RedisStorage {
 	}
 }
 
-func (r RedisStorage) StoreVote(candidate string, votes []Vote) error {
+func (r RedisStorage) StoreVote(candidateID string, votes []Vote) error {
 	return r.redisClient.Add(redis.Item{
-		Key:   candidate,
+		Key:   candidateID,
 		Value: votes,
 	})
 }
 
-func (r RedisStorage) GetVotes(candidate string) ([]Vote, error) {
-	candidateVotes, err := r.redisClient.Get(candidate)
+func (r RedisStorage) GetVotes(candidateID string) ([]Vote, error) {
+	candidateVotes, err := r.redisClient.Get(candidateID)
 	if err != nil && err != redis.ErrNotExists {
 		return nil, err
 	}
@@ -61,13 +61,13 @@ func (r RedisStorage) GetProcessedVoters() ([]string, error) {
 	return r.getProcessedVoters()
 }
 
-func (r RedisStorage) AddCandidate(candidate string) error {
+func (r RedisStorage) AddCandidate(candidateID string) error {
 	candidates, err := r.getCandidates()
 	if err != nil {
 		return err
 	}
 
-	candidates = append(candidates, candidate)
+	candidates = append(candidates, candidateID)
 
 	return r.redisClient.Add(redis.Item{
 		Key:   candidatesKey,

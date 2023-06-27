@@ -6,16 +6,16 @@ type MockDataStore struct {
 	Candidates      []string
 }
 
-func (ds *MockDataStore) StoreVote(candidate string, votes []Vote) error {
+func (ds *MockDataStore) StoreVote(candidateID string, votes []Vote) error {
 	ds.Votes = append(ds.Votes, votes...)
 	return nil
 }
 
-func (ds *MockDataStore) GetVotes(candidate string) ([]Vote, error) {
+func (ds *MockDataStore) GetVotes(candidateID string) ([]Vote, error) {
 	var votes []Vote
 
 	for _, vote := range ds.Votes {
-		if vote.Candidate == candidate {
+		if vote.CandidateID == candidateID {
 			votes = append(votes, vote)
 		}
 	}
@@ -32,8 +32,8 @@ func (ds *MockDataStore) GetProcessedVoters() ([]string, error) {
 	return ds.ProcessedVoters, nil
 }
 
-func (ds *MockDataStore) AddCandidate(candidate string) error {
-	ds.Candidates = append(ds.Candidates, candidate)
+func (ds *MockDataStore) AddCandidate(candidateID string) error {
+	ds.Candidates = append(ds.Candidates, candidateID)
 	return nil
 }
 

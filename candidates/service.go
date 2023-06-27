@@ -8,24 +8,24 @@ var (
 
 // DataStore for candidates
 type DataStore interface {
-	AddCandidate(candidate string) error
+	AddCandidate(candidateID string) error
 	GetCandidates() ([]string, error)
 }
 
 // RegisterNew new candidate.
-func RegisterNew(dataStore DataStore, candidate string) error {
+func RegisterNew(dataStore DataStore, candidateID string) error {
 	existingCandidates, err := dataStore.GetCandidates()
 	if err != nil {
 		return err
 	}
 
 	for _, existingCandidate := range existingCandidates {
-		if existingCandidate == candidate {
+		if existingCandidate == candidateID {
 			return ErrCandidateExists
 		}
 	}
 
-	return dataStore.AddCandidate(candidate)
+	return dataStore.AddCandidate(candidateID)
 }
 
 // GetAll currently registered candidates.

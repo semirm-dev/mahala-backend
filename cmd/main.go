@@ -52,7 +52,7 @@ func main() {
 	voteWriter := voting.PubSubVoteWriter(publisher)
 	ticketSender := voting.NewTicketSender(voting.VoterValidator(dataStore), voteWriter)
 
-	votesApi := api.Group("votesApi")
+	votesApi := api.Group("votes")
 	votesApi.POST("", voting.VoteHandler(ticketSender))
 	votesApi.GET("", voting.QueryVoteHandler(dataStore))
 
