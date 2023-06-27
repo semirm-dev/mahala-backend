@@ -23,14 +23,14 @@ func PubSubVoteWriter(pub *pubsub.Publisher) VoteWriterFunc {
 // HandleVotedEvent reacts to EventVoted event. Calls voting business logic.
 func HandleVotedEvent(dataStore DataStore) func(ctx context.Context, hub *rmq.Hub) {
 	return func(ctx context.Context, hub *rmq.Hub) {
-		defer logrus.Warnf("%s consumer closed", EventVoted)
+		defer logrus.Warnf("consumer for event %s closed", EventVoted)
 
 		errors := make(chan error)
 		go handleErrors(ctx, errors)
 
 		consumer := pubsub.StartConsumer(ctx, hub, "voting_service", Bus, string(EventVoted))
 
-		logrus.Infof("%s started", EventVoted)
+		logrus.Infof("consumer for event %s started", EventVoted)
 
 		for {
 			select {

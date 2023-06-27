@@ -1,6 +1,11 @@
 package voting
 
-import "github.com/sirupsen/logrus"
+import (
+	"errors"
+	"github.com/semirm-dev/mahala/internal/errwrapper"
+	"github.com/sirupsen/logrus"
+	"strings"
+)
 
 type TicketSender struct {
 	validateVoter VoterValidatorFunc
@@ -27,6 +32,10 @@ func NewTicketSender(voterIDValidator VoterValidatorFunc, voteWriter VoteWriterF
 
 // Send voting ticket to voting service
 func (s TicketSender) Send(ticket Ticket) error {
+	if err := isTicketValid(ticket); err != nil {
+		return err
+	}
+
 	if err := s.validateVoter(ticket.VoterID); err != nil {
 		return err
 	}
@@ -34,4 +43,18 @@ func (s TicketSender) Send(ticket Ticket) error {
 	logrus.Infof("voter %s voting for %s", ticket.VoterID, ticket.CandidateID)
 
 	return s.vote(ticket)
+}
+
+func isTicketValid(ticket Ticket) error {
+	var err error
+
+	if strings.TrimSpace(ticket.CandidateID) == "" {
+		err = errwrapper.Wrap(err, errors.New("missing <candidateID>"))
+	}
+
+	if strings.TrimSpace(ticket.VoterID) == "" {
+		err = errwrapper.Wrap(err, errors.New("missing <voterID>"))
+	}
+
+	return err
 }
