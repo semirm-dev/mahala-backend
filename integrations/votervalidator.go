@@ -8,6 +8,7 @@ import (
 
 func VoterValidator(dataStore voting.DataStore) voting.VoterValidatorFunc {
 	return func(voterID string) error {
+		// normally we would check if voter's ID is valid (3rd party service for legal validations)
 		voted, err := hasVoted(dataStore, voterID)
 		if err != nil {
 			return err
