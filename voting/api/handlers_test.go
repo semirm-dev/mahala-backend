@@ -44,13 +44,11 @@ func TestQueryVoteHandler(t *testing.T) {
 		},
 	}
 
-	payload := `{"candidateID": "candidate-1"}`
-
 	router := web.NewRouter()
 	router.GET("/", http2.QueryVotesHandler(dataStore))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer([]byte(payload)))
+	r := httptest.NewRequest(http.MethodGet, "/?candidateID=candidate-1", nil)
 	r.Header.Set("Content-Type", "application/json")
 
 	router.ServeHTTP(w, r)

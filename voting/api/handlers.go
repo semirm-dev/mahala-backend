@@ -36,14 +36,11 @@ func SendVoteHandler(ticketSender voting.TicketSender) gin.HandlerFunc {
 
 func QueryVotesHandler(dataStore voting.DataStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var filter voting.QueryVoteFilter
-		if err := c.ShouldBindJSON(&filter); err != nil {
-			logrus.Error(err)
-			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
-			return
-		}
+		candidateID := c.Query("candidateID")
 
-		votes, err := voting.QueryVotes(dataStore, filter)
+		votes, err := voting.QueryVotes(dataStore, voting.QueryVoteFilter{
+			CandidateID: candidateID,
+		})
 		if err != nil {
 			logrus.Error(err)
 			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
