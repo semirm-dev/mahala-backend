@@ -11,8 +11,11 @@ var (
 )
 
 type Candidate struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	ProfileImage string `json:"profileImage"`
+	Party        string `json:"party"`
+	Votes        int    `json:"votes,omitempty"`
 }
 
 // DataStore is used to store Votes
@@ -60,6 +63,10 @@ func isCandidateValid(candidate Candidate) error {
 
 	if strings.TrimSpace(candidate.Name) == "" {
 		err = errwrapper.Wrap(err, errors.New("missing <candidate.Name>"))
+	}
+
+	if strings.TrimSpace(candidate.Party) == "" {
+		err = errwrapper.Wrap(err, errors.New("missing <candidate.Party>"))
 	}
 
 	return err

@@ -26,7 +26,7 @@ func TestVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := http2.HandlerResponse{Message: "successfully voted"}
+	expectedResponse := http2.HandlerResponse{Message: "vote finished, will be evaluated"}
 	var voteResponse http2.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&voteResponse)

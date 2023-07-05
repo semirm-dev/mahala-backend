@@ -18,7 +18,7 @@ func TestAddCandidateHandler(t *testing.T) {
 	router := web.NewRouter()
 	router.POST("/", api.AddNewCandidateHandler(dataStore))
 
-	payload := `{"id": "candidate-1", "name": "candidate name"}`
+	payload := `{"id": "candidate-1", "name": "candidate name 1", "profileImage": "img-1", "party": "party-1"}`
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer([]byte(payload)))
@@ -26,7 +26,7 @@ func TestAddCandidateHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := api.HandlerResponse{Message: "candidate candidate name created"}
+	expectedResponse := api.HandlerResponse{Message: "candidate candidate name 1 created"}
 	var addCandidateResponse api.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&addCandidateResponse)
@@ -38,12 +38,16 @@ func TestGetAllCandidatesHandler(t *testing.T) {
 	dataStore := &datastore.MockDataStore{
 		Candidates: []candidates.Candidate{
 			{
-				ID:   "candidate-1",
-				Name: "candidate name",
+				ID:           "candidate-1",
+				Name:         "candidate name",
+				ProfileImage: "img-1",
+				Party:        "party-1",
 			},
 			{
-				ID:   "candidate-2",
-				Name: "candidate 2 name",
+				ID:           "candidate-2",
+				Name:         "candidate 2 name",
+				ProfileImage: "img-2",
+				Party:        "party-2",
 			},
 		},
 	}
@@ -58,12 +62,16 @@ func TestGetAllCandidatesHandler(t *testing.T) {
 
 	expectedResponse := []candidates.Candidate{
 		{
-			ID:   "candidate-1",
-			Name: "candidate name",
+			ID:           "candidate-1",
+			Name:         "candidate name",
+			ProfileImage: "img-1",
+			Party:        "party-1",
 		},
 		{
-			ID:   "candidate-2",
-			Name: "candidate 2 name",
+			ID:           "candidate-2",
+			Name:         "candidate 2 name",
+			ProfileImage: "img-2",
+			Party:        "party-2",
 		},
 	}
 	var candidatesResponse []candidates.Candidate

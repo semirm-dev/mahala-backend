@@ -13,8 +13,10 @@ type HandlerResponse struct {
 }
 
 type NewCandidateRequest struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	ProfileImage string `json:"profileImage"`
+	Party        string `json:"party"`
 }
 
 func AddNewCandidateHandler(dataStore candidates.DataStore) gin.HandlerFunc {
@@ -27,8 +29,10 @@ func AddNewCandidateHandler(dataStore candidates.DataStore) gin.HandlerFunc {
 		}
 
 		if err := candidates.RegisterNew(dataStore, candidates.Candidate{
-			ID:   candidateRequest.ID,
-			Name: candidateRequest.Name,
+			ID:           candidateRequest.ID,
+			Name:         candidateRequest.Name,
+			ProfileImage: candidateRequest.ProfileImage,
+			Party:        candidateRequest.Party,
 		}); err != nil {
 			logrus.Error(err)
 			c.JSON(http.StatusBadRequest, HandlerResponse{Message: err.Error()})
