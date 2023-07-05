@@ -1,6 +1,8 @@
 package voting
 
-import "errors"
+import (
+	"errors"
+)
 
 type Vote struct {
 	CandidateID string `json:"candidateID"`
@@ -12,22 +14,31 @@ type QueryVoteFilter struct {
 	CandidateID string `json:"candidateID"`
 }
 
+type Candidate struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 // DataStore is used to store Votes
 type DataStore interface {
 	StoreVote(candidateID string, votes []Vote) error
 	GetVotes(candidateID string) ([]Vote, error)
 	SetVoterAsProcessed(voterID string) error
 	GetProcessedVoters() ([]string, error)
-	GetCandidate(candidateID string) (string, error)
 }
 
-func RegisterVotingTicket(dataStore DataStore, ticket Ticket) error {
-	existingCandidate, err := dataStore.GetCandidate(ticket.CandidateID)
+// CandidatesApi is responsible for communication with candidates service/domain.
+type CandidatesApi interface {
+	GetCandidate(candidateID string) (Candidate, error)
+}
+
+func RegisterVotingTicket(dataStore DataStore, ticket Ticket, candidatesApi CandidatesApi) error {
+	candidate, err := candidatesApi.GetCandidate(ticket.CandidateID)
 	if err != nil {
 		return err
 	}
 
-	if existingCandidate == "" {
+	if candidate.ID == "" || candidate.Name == "" {
 		return errors.New("candidate not found")
 	}
 
@@ -68,19 +79,4 @@ func applyVote(dataStore DataStore, ticket Ticket) error {
 
 func setVoterAsProcessed(dataStore DataStore, voterID string) error {
 	return dataStore.SetVoterAsProcessed(voterID)
-}
-
-func hasVoted(dataStore DataStore, voterID string) (bool, error) {
-	voters, err := dataStore.GetProcessedVoters()
-	if err != nil {
-		return false, err
-	}
-
-	for _, voter := range voters {
-		if voter == voterID {
-			return true, nil
-		}
-	}
-
-	return false, nil
 }

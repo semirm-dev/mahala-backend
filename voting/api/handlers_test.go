@@ -1,10 +1,12 @@
-package voting_test
+package api_test
 
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/semirm-dev/mahala/datastore"
 	"github.com/semirm-dev/mahala/internal/web"
 	"github.com/semirm-dev/mahala/voting"
+	http2 "github.com/semirm-dev/mahala/voting/api"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -14,7 +16,7 @@ import (
 func TestVoteHandler(t *testing.T) {
 	router := web.NewRouter()
 	ticketSender := voting.NewTicketSender(fakeVoterIDValidator, fakeVoteWriter)
-	router.POST("/", voting.SendVoteHandler(ticketSender))
+	router.POST("/", http2.SendVoteHandler(ticketSender))
 
 	payload := `{"voterID": "voter-123", "candidateID": "candidate-123"}`
 
@@ -24,8 +26,8 @@ func TestVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := voting.HandlerResponse{Message: "successfully voted"}
-	var voteResponse voting.HandlerResponse
+	expectedResponse := http2.HandlerResponse{Message: "successfully voted"}
+	var voteResponse http2.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&voteResponse)
 	assert.NoError(t, err)
@@ -33,7 +35,7 @@ func TestVoteHandler(t *testing.T) {
 }
 
 func TestQueryVoteHandler(t *testing.T) {
-	dataStore := &voting.MockDataStore{
+	dataStore := &datastore.MockDataStore{
 		Votes: []voting.Vote{
 			{
 				CandidateID: "candidate-1",
@@ -45,7 +47,7 @@ func TestQueryVoteHandler(t *testing.T) {
 	payload := `{"candidateID": "candidate-1"}`
 
 	router := web.NewRouter()
-	router.GET("/", voting.QueryVotesHandler(dataStore))
+	router.GET("/", http2.QueryVotesHandler(dataStore))
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", bytes.NewBuffer([]byte(payload)))
@@ -53,7 +55,7 @@ func TestQueryVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := voting.QueryVotesResponse{
+	expectedResponse := http2.QueryVotesResponse{
 		Votes: []voting.Vote{
 			{
 				CandidateID: "candidate-1",
@@ -61,7 +63,7 @@ func TestQueryVoteHandler(t *testing.T) {
 			},
 		},
 	}
-	var queryResponse voting.QueryVotesResponse
+	var queryResponse http2.QueryVotesResponse
 
 	err := json.NewDecoder(w.Body).Decode(&queryResponse)
 	assert.NoError(t, err)
@@ -75,4 +77,12 @@ func mockHttpServer(t *testing.T) *httptest.Server {
 		_, err := w.Write(res)
 		assert.Nil(t, err)
 	}))
+}
+
+func fakeVoterIDValidator(voterID string) error {
+	return nil
+}
+
+func fakeVoteWriter(ticket voting.Ticket) error {
+	return nil
 }

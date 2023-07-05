@@ -8,14 +8,6 @@ import (
 	"testing"
 )
 
-func fakeVoteWriter(ticket voting.Ticket) error {
-	return nil
-}
-
-func fakeVoterIDValidator(voterID string) error {
-	return nil
-}
-
 func TestTicketSender_Send(t *testing.T) {
 	testTable := map[string]struct {
 		ticket           voting.Ticket
@@ -80,4 +72,12 @@ func TestTicketSender_Send(t *testing.T) {
 			assert.Equal(t, tt.expectedErr, err)
 		})
 	}
+}
+
+func fakeVoteWriter(ticket voting.Ticket) error {
+	return nil
+}
+
+func fakeVoterIDValidator(voterID string) error {
+	return nil
 }

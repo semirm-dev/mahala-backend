@@ -2,20 +2,27 @@ package voting_test
 
 import (
 	"errors"
+	"github.com/semirm-dev/mahala/candidates"
+	"github.com/semirm-dev/mahala/datastore"
 	"github.com/semirm-dev/mahala/voting"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestRegisterVotingTicket(t *testing.T) {
-	dataStore := &voting.MockDataStore{
-		Candidates: []string{"candidate-1"},
+	dataStore := &datastore.MockDataStore{
+		Candidates: []candidates.Candidate{
+			{
+				ID:   "candidate-1",
+				Name: "candidate name",
+			},
+		},
 	}
 
 	err := voting.RegisterVotingTicket(dataStore, voting.Ticket{
 		CandidateID: "candidate-1",
 		VoterID:     "voter-1",
-	})
+	}, &mockCandidatesApi{})
 	assert.NoError(t, err)
 
 	assert.Equal(t, 1, len(dataStore.Votes))
@@ -25,12 +32,12 @@ func TestRegisterVotingTicket(t *testing.T) {
 }
 
 func TestRegisterVotingTicket_CandidateNotExists(t *testing.T) {
-	dataStore := &voting.MockDataStore{}
+	dataStore := &datastore.MockDataStore{}
 
 	err := voting.RegisterVotingTicket(dataStore, voting.Ticket{
 		CandidateID: "candidate-1",
 		VoterID:     "voter-1",
-	})
+	}, &mockCandidatesApi{withErr: errors.New("candidate not found")})
 	assert.Equal(t, errors.New("candidate not found"), err)
 	assert.Equal(t, 0, len(dataStore.Candidates))
 	assert.Equal(t, 0, len(dataStore.Votes))
@@ -38,8 +45,13 @@ func TestRegisterVotingTicket_CandidateNotExists(t *testing.T) {
 }
 
 func TestQueryVotes(t *testing.T) {
-	dataStore := &voting.MockDataStore{
-		Candidates: []string{"candidate-1"},
+	dataStore := &datastore.MockDataStore{
+		Candidates: []candidates.Candidate{
+			{
+				ID:   "candidate-1",
+				Name: "candidate name",
+			},
+		},
 		Votes: []voting.Vote{
 			{
 				CandidateID: "candidate-1",
@@ -56,4 +68,18 @@ func TestQueryVotes(t *testing.T) {
 	vote := votes[0]
 	assert.Equal(t, "candidate-1", vote.CandidateID)
 	assert.Equal(t, "voter-1", vote.VoterID)
+}
+
+type mockCandidatesApi struct {
+	withErr error
+}
+
+func (api *mockCandidatesApi) GetCandidate(candidateID string) (voting.Candidate, error) {
+	if api.withErr != nil {
+		return voting.Candidate{}, api.withErr
+	}
+	return voting.Candidate{
+		ID:   "candidate-1",
+		Name: "candidate name",
+	}, nil
 }

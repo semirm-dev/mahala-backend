@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ServeHttp will start http server with graceful shutdown
+// ServeHttp will start api server with graceful shutdown
 func ServeHttp(addr, serviceName string, router http.Handler) {
 	srv := &http.Server{
 		Addr:    addr,
@@ -19,7 +19,7 @@ func ServeHttp(addr, serviceName string, router http.Handler) {
 	}
 
 	go func() {
-		logrus.Infof("[%s] http listen: %v", serviceName, srv.Addr)
+		logrus.Infof("[%s] api listen: %v", serviceName, srv.Addr)
 
 		if err := srv.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
 			logrus.Error("server listen err: ", err)

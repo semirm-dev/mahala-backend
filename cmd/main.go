@@ -5,11 +5,14 @@ import (
 	"flag"
 	"github.com/gin-gonic/gin"
 	"github.com/gobackpack/rmq"
-	"github.com/semirm-dev/mahala/candidates"
+	candidatesApi "github.com/semirm-dev/mahala/candidates/api"
+	"github.com/semirm-dev/mahala/datastore"
+	"github.com/semirm-dev/mahala/integrations"
 	"github.com/semirm-dev/mahala/internal/pubsub"
 	"github.com/semirm-dev/mahala/internal/redis"
 	"github.com/semirm-dev/mahala/internal/web"
 	"github.com/semirm-dev/mahala/voting"
+	votingApi "github.com/semirm-dev/mahala/voting/api"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -44,21 +47,21 @@ func main() {
 
 	redisConf := redis.NewConfig()
 	redisClient := redis.NewClient(redisConf)
-	dataStore := voting.NewRedisStorage(redisClient)
+	dataStore := datastore.NewRedisStorage(redisClient)
 
-	pubsub.Listen(hubCtx, hub, voting.HandleVotedEvent(dataStore))
+	pubsub.Listen(hubCtx, hub, integrations.HandleVotedEvent(dataStore, integrations.CandidatesApiAdapter{CandidatesDataStore: dataStore}))
 
-	publisher := pubsub.NewPublisher(hubCtx, hub, voting.Bus, []string{voting.EventVoted})
-	voteWriter := voting.PubSubVoteWriter(publisher)
-	ticketSender := voting.NewTicketSender(voting.VoterValidator(dataStore), voteWriter)
+	publisher := pubsub.NewPublisher(hubCtx, hub, integrations.Bus, []string{integrations.EventVoted})
+	voteWriter := integrations.PubSubVoteWriter(publisher)
+	ticketSender := voting.NewTicketSender(integrations.VoterValidator(dataStore), voteWriter)
 
-	votesApi := api.Group("votes")
-	votesApi.POST("", voting.SendVoteHandler(ticketSender))
-	votesApi.GET("", voting.QueryVotesHandler(dataStore))
+	votes := api.Group("votes")
+	votes.POST("", votingApi.SendVoteHandler(ticketSender))
+	votes.GET("", votingApi.QueryVotesHandler(dataStore))
 
-	candidatesApi := api.Group("candidates")
-	candidatesApi.POST("", candidates.AddNewHandler(dataStore))
-	candidatesApi.GET("", candidates.GetAllHandler(dataStore))
+	candidates := api.Group("candidates")
+	candidates.POST("", candidatesApi.AddNewCandidateHandler(dataStore))
+	candidates.GET("", candidatesApi.GetAllCandidatesHandler(dataStore))
 
 	web.ServeHttp(*httpAddr, "api", router)
 }

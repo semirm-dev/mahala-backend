@@ -1,10 +1,11 @@
-package voting
+package integrations
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/gobackpack/rmq"
 	"github.com/semirm-dev/mahala/internal/pubsub"
+	"github.com/semirm-dev/mahala/voting"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,14 +15,14 @@ const (
 )
 
 // PubSubVoteWriter will publish an event of EventVoted for new voting ticket.
-func PubSubVoteWriter(pub *pubsub.Publisher) VoteWriterFunc {
-	return func(ticket Ticket) error {
+func PubSubVoteWriter(pub *pubsub.Publisher) voting.VoteWriterFunc {
+	return func(ticket voting.Ticket) error {
 		return pub.Publish(EventVoted, ticket)
 	}
 }
 
 // HandleVotedEvent reacts to EventVoted event. Calls voting business logic.
-func HandleVotedEvent(dataStore DataStore) func(ctx context.Context, hub *rmq.Hub) {
+func HandleVotedEvent(dataStore voting.DataStore, candidatesApi voting.CandidatesApi) func(ctx context.Context, hub *rmq.Hub) {
 	return func(ctx context.Context, hub *rmq.Hub) {
 		defer logrus.Warnf("consumer for event %s closed", EventVoted)
 
@@ -35,12 +36,12 @@ func HandleVotedEvent(dataStore DataStore) func(ctx context.Context, hub *rmq.Hu
 		for {
 			select {
 			case msg := <-consumer.OnMessage:
-				var ticket Ticket
+				var ticket voting.Ticket
 				if err := json.Unmarshal(msg, &ticket); err != nil {
 					errors <- err
 				}
 
-				if err := RegisterVotingTicket(dataStore, ticket); err != nil {
+				if err := voting.RegisterVotingTicket(dataStore, ticket, candidatesApi); err != nil {
 					errors <- err
 				}
 			case err := <-consumer.OnError:

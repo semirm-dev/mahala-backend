@@ -1,9 +1,11 @@
-package voting
+package datastore
 
 import (
 	"encoding/json"
 	"errors"
+	"github.com/semirm-dev/mahala/candidates"
 	"github.com/semirm-dev/mahala/internal/redis"
+	"github.com/semirm-dev/mahala/voting"
 )
 
 const (
@@ -21,22 +23,22 @@ func NewRedisStorage(redisClient *redis.Client) RedisStorage {
 	}
 }
 
-func (r RedisStorage) StoreVote(candidateID string, votes []Vote) error {
+func (r RedisStorage) StoreVote(candidateID string, votes []voting.Vote) error {
 	return r.redisClient.Add(redis.Item{
 		Key:   candidateID,
 		Value: votes,
 	})
 }
 
-func (r RedisStorage) GetVotes(candidateID string) ([]Vote, error) {
+func (r RedisStorage) GetVotes(candidateID string) ([]voting.Vote, error) {
 	candidateVotes, err := r.redisClient.Get(candidateID)
 	if err != nil && err != redis.ErrNotExists {
 		return nil, err
 	}
 
-	var votes []Vote
+	var votes []voting.Vote
 	if len(candidateVotes) > 0 {
-		if err := json.Unmarshal(candidateVotes, &votes); err != nil {
+		if err = json.Unmarshal(candidateVotes, &votes); err != nil {
 			return nil, err
 		}
 	}
@@ -62,31 +64,44 @@ func (r RedisStorage) GetProcessedVoters() ([]string, error) {
 	return r.getProcessedVoters()
 }
 
-func (r RedisStorage) AddCandidate(candidateID string) error {
-	candidates, err := r.getCandidates()
+func (r RedisStorage) AddCandidate(candidate candidates.Candidate) error {
+	existingCandidates, err := r.getCandidates()
 	if err != nil {
 		return err
 	}
 
-	candidates = append(candidates, candidateID)
+	existingCandidates = append(existingCandidates, candidate)
 
 	return r.redisClient.Add(redis.Item{
 		Key:   candidatesKey,
-		Value: candidates,
+		Value: existingCandidates,
 	})
 }
 
-func (r RedisStorage) GetCandidates() ([]string, error) {
+func (r RedisStorage) GetCandidates() ([]candidates.Candidate, error) {
 	return r.getCandidates()
 }
 
-func (r RedisStorage) GetCandidate(candidateID string) (string, error) {
-	candidate, err := r.redisClient.Get(candidateID)
-	if err != nil || err == redis.ErrNotExists || len(candidate) == 0 {
-		return "", errors.New("candidate not found")
+func (r RedisStorage) GetCandidate(candidateID string) (candidates.Candidate, error) {
+	var candidate candidates.Candidate
+
+	unmarshalledCandidates, err := r.redisClient.Get(candidatesKey)
+	if err != nil || err == redis.ErrNotExists || len(unmarshalledCandidates) == 0 {
+		return candidate, errors.New("candidate not found")
 	}
 
-	return string(candidate), nil
+	var existingCandidates []candidates.Candidate
+	if err = json.Unmarshal(unmarshalledCandidates, &existingCandidates); err != nil {
+		return candidate, err
+	}
+
+	for _, c := range existingCandidates {
+		if c.ID == candidateID {
+			candidate = c
+		}
+	}
+
+	return candidate, nil
 }
 
 func (r RedisStorage) getProcessedVoters() ([]string, error) {
@@ -97,7 +112,7 @@ func (r RedisStorage) getProcessedVoters() ([]string, error) {
 
 	var processed []string
 	if len(processedVoters) > 0 {
-		if err := json.Unmarshal(processedVoters, &processed); err != nil {
+		if err = json.Unmarshal(processedVoters, &processed); err != nil {
 			return nil, err
 		}
 	}
@@ -105,17 +120,17 @@ func (r RedisStorage) getProcessedVoters() ([]string, error) {
 	return processed, nil
 }
 
-func (r RedisStorage) getCandidates() ([]string, error) {
+func (r RedisStorage) getCandidates() ([]candidates.Candidate, error) {
 	existingCandidates, err := r.redisClient.Get(candidatesKey)
 	if err != nil && err != redis.ErrNotExists {
 		return nil, err
 	}
 
-	var candidates []string
+	var candidatesResult []candidates.Candidate
 	if len(existingCandidates) > 0 {
-		if err := json.Unmarshal(existingCandidates, &candidates); err != nil {
+		if err := json.Unmarshal(existingCandidates, &candidatesResult); err != nil {
 			return nil, err
 		}
 	}
-	return candidates, nil
+	return candidatesResult, nil
 }

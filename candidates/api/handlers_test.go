@@ -1,11 +1,12 @@
-package candidates_test
+package api_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/semirm-dev/mahala/candidates"
+	"github.com/semirm-dev/mahala/candidates/api"
+	"github.com/semirm-dev/mahala/datastore"
 	"github.com/semirm-dev/mahala/internal/web"
-	"github.com/semirm-dev/mahala/voting"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -13,11 +14,11 @@ import (
 )
 
 func TestAddCandidateHandler(t *testing.T) {
-	dataStore := &voting.MockDataStore{}
+	dataStore := &datastore.MockDataStore{}
 	router := web.NewRouter()
-	router.POST("/", candidates.AddNewHandler(dataStore))
+	router.POST("/", api.AddNewCandidateHandler(dataStore))
 
-	payload := `{"candidateID": "candidate-1"}`
+	payload := `{"id": "candidate-1", "name": "candidate name"}`
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer([]byte(payload)))
@@ -25,20 +26,29 @@ func TestAddCandidateHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := candidates.HandlerResponse{Message: "candidate candidate-1 created"}
-	var addCandidateResponse candidates.HandlerResponse
+	expectedResponse := api.HandlerResponse{Message: "candidate candidate name created"}
+	var addCandidateResponse api.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&addCandidateResponse)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedResponse, addCandidateResponse)
 }
 
-func TestGetAllHandler(t *testing.T) {
-	dataStore := &voting.MockDataStore{
-		Candidates: []string{"candidate-1", "candidate-2"},
+func TestGetAllCandidatesHandler(t *testing.T) {
+	dataStore := &datastore.MockDataStore{
+		Candidates: []candidates.Candidate{
+			{
+				ID:   "candidate-1",
+				Name: "candidate name",
+			},
+			{
+				ID:   "candidate-2",
+				Name: "candidate 2 name",
+			},
+		},
 	}
 	router := web.NewRouter()
-	router.GET("/", candidates.GetAllHandler(dataStore))
+	router.GET("/", api.GetAllCandidatesHandler(dataStore))
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -46,8 +56,17 @@ func TestGetAllHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := []string{"candidate-1", "candidate-2"}
-	var candidatesResponse []string
+	expectedResponse := []candidates.Candidate{
+		{
+			ID:   "candidate-1",
+			Name: "candidate name",
+		},
+		{
+			ID:   "candidate-2",
+			Name: "candidate 2 name",
+		},
+	}
+	var candidatesResponse []candidates.Candidate
 
 	err := json.NewDecoder(w.Body).Decode(&candidatesResponse)
 	assert.NoError(t, err)

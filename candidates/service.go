@@ -10,15 +10,21 @@ var (
 	ErrCandidateExists = errors.New("candidate already registered")
 )
 
-// DataStore for candidates
+type Candidate struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// DataStore is used to store Votes
 type DataStore interface {
-	AddCandidate(candidateID string) error
-	GetCandidates() ([]string, error)
+	AddCandidate(candidate Candidate) error
+	GetCandidates() ([]Candidate, error)
+	GetCandidate(candidateID string) (Candidate, error)
 }
 
 // RegisterNew new candidate.
-func RegisterNew(dataStore DataStore, candidateID string) error {
-	if err := isCandidateValid(candidateID); err != nil {
+func RegisterNew(dataStore DataStore, candidate Candidate) error {
+	if err := isCandidateValid(candidate); err != nil {
 		return err
 	}
 
@@ -28,24 +34,32 @@ func RegisterNew(dataStore DataStore, candidateID string) error {
 	}
 
 	for _, existingCandidate := range existingCandidates {
-		if existingCandidate == candidateID {
+		if existingCandidate.ID == candidate.ID {
 			return ErrCandidateExists
 		}
 	}
 
-	return dataStore.AddCandidate(candidateID)
+	return dataStore.AddCandidate(candidate)
 }
 
 // GetAll currently registered candidates.
-func GetAll(dataStore DataStore) ([]string, error) {
+func GetAll(dataStore DataStore) ([]Candidate, error) {
 	return dataStore.GetCandidates()
 }
 
-func isCandidateValid(candidateID string) error {
+func GetByID(dataStore DataStore, candidateID string) (Candidate, error) {
+	return dataStore.GetCandidate(candidateID)
+}
+
+func isCandidateValid(candidate Candidate) error {
 	var err error
 
-	if strings.TrimSpace(candidateID) == "" {
-		err = errwrapper.Wrap(err, errors.New("missing <candidateID>"))
+	if strings.TrimSpace(candidate.ID) == "" {
+		err = errwrapper.Wrap(err, errors.New("missing <candidate.ID>"))
+	}
+
+	if strings.TrimSpace(candidate.Name) == "" {
+		err = errwrapper.Wrap(err, errors.New("missing <candidate.Name>"))
 	}
 
 	return err
