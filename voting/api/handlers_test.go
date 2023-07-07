@@ -6,7 +6,7 @@ import (
 	"github.com/semirm-dev/mahala/datastore"
 	"github.com/semirm-dev/mahala/internal/web"
 	"github.com/semirm-dev/mahala/voting"
-	http2 "github.com/semirm-dev/mahala/voting/api"
+	votingApi "github.com/semirm-dev/mahala/voting/api"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +16,7 @@ import (
 func TestVoteHandler(t *testing.T) {
 	router := web.NewRouter()
 	ticketSender := voting.NewTicketSender(fakeVoterIDValidator, fakeVoteWriter)
-	router.POST("/", http2.SendVoteHandler(ticketSender))
+	router.POST("/", votingApi.SendVoteHandler(ticketSender))
 
 	payload := `{"voterID": "voter-123", "candidateID": "candidate-123"}`
 
@@ -26,8 +26,8 @@ func TestVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := http2.HandlerResponse{Message: "vote finished, will be evaluated"}
-	var voteResponse http2.HandlerResponse
+	expectedResponse := votingApi.HandlerResponse{Message: "vote finished, will be evaluated"}
+	var voteResponse votingApi.HandlerResponse
 
 	err := json.NewDecoder(w.Body).Decode(&voteResponse)
 	assert.NoError(t, err)
@@ -45,7 +45,7 @@ func TestQueryVoteHandler(t *testing.T) {
 	}
 
 	router := web.NewRouter()
-	router.GET("/", http2.QueryVotesHandler(dataStore))
+	router.GET("/", votingApi.QueryVotesHandler(dataStore))
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/?candidateID=candidate-1", nil)
@@ -53,15 +53,13 @@ func TestQueryVoteHandler(t *testing.T) {
 
 	router.ServeHTTP(w, r)
 
-	expectedResponse := http2.QueryVotesResponse{
-		Votes: []voting.Vote{
-			{
-				CandidateID: "candidate-1",
-				VoterID:     "voter-123",
-			},
+	expectedResponse := []voting.Vote{
+		{
+			CandidateID: "candidate-1",
+			VoterID:     "voter-123",
 		},
 	}
-	var queryResponse http2.QueryVotesResponse
+	var queryResponse []voting.Vote
 
 	err := json.NewDecoder(w.Body).Decode(&queryResponse)
 	assert.NoError(t, err)

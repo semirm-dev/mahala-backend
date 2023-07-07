@@ -11,10 +11,6 @@ type HandlerResponse struct {
 	Message string `json:"message"`
 }
 
-type QueryVotesResponse struct {
-	Votes []voting.Vote `json:"votes"`
-}
-
 func SendVoteHandler(ticketSender voting.TicketSender) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ticket voting.Ticket
@@ -47,8 +43,6 @@ func QueryVotesHandler(dataStore voting.DataStore) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, QueryVotesResponse{
-			Votes: votes,
-		})
+		c.JSON(http.StatusOK, votes)
 	}
 }
