@@ -2,8 +2,8 @@ package integrations_test
 
 import (
 	"errors"
-	"github.com/semirm-dev/mahala/datastore"
-	"github.com/semirm-dev/mahala/integrations"
+	"github.com/semirm-dev/mahala-backend/datastore"
+	"github.com/semirm-dev/mahala-backend/integrations"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

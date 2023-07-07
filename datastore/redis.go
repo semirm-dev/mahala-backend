@@ -3,9 +3,9 @@ package datastore
 import (
 	"encoding/json"
 	"errors"
-	"github.com/semirm-dev/mahala/candidates"
-	"github.com/semirm-dev/mahala/internal/redis"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/candidates"
+	"github.com/semirm-dev/mahala-backend/internal/redis"
+	"github.com/semirm-dev/mahala-backend/voting"
 )
 
 const (

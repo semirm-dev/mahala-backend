@@ -3,7 +3,7 @@ package voting_test
 import (
 	"errors"
 	"fmt"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/voting"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

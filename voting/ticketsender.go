@@ -2,7 +2,7 @@ package voting
 
 import (
 	"errors"
-	"github.com/semirm-dev/mahala/internal/errwrapper"
+	"github.com/semirm-dev/mahala-backend/internal/errwrapper"
 	"github.com/sirupsen/logrus"
 	"strings"
 )

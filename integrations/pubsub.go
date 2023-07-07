@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gobackpack/rmq"
-	"github.com/semirm-dev/mahala/internal/pubsub"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/internal/pubsub"
+	"github.com/semirm-dev/mahala-backend/voting"
 	"github.com/sirupsen/logrus"
 )
 

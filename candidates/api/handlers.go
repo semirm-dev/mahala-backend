@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/semirm-dev/mahala/candidates"
+	"github.com/semirm-dev/mahala-backend/candidates"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )

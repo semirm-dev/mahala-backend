@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/voting"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )

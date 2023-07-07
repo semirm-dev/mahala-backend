@@ -2,9 +2,9 @@ package voting_test
 
 import (
 	"errors"
-	"github.com/semirm-dev/mahala/candidates"
-	"github.com/semirm-dev/mahala/datastore"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/candidates"
+	"github.com/semirm-dev/mahala-backend/datastore"
+	"github.com/semirm-dev/mahala-backend/voting"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

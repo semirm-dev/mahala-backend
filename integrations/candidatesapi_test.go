@@ -1,10 +1,10 @@
 package integrations_test
 
 import (
-	"github.com/semirm-dev/mahala/candidates"
-	"github.com/semirm-dev/mahala/datastore"
-	"github.com/semirm-dev/mahala/integrations"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/candidates"
+	"github.com/semirm-dev/mahala-backend/datastore"
+	"github.com/semirm-dev/mahala-backend/integrations"
+	"github.com/semirm-dev/mahala-backend/voting"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

@@ -3,7 +3,7 @@ package integrations
 import (
 	"errors"
 	"fmt"
-	"github.com/semirm-dev/mahala/voting"
+	"github.com/semirm-dev/mahala-backend/voting"
 )
 
 func VoterValidator(dataStore voting.DataStore) voting.VoterValidatorFunc {

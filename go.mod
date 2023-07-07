@@ -1,4 +1,4 @@
-module github.com/semirm-dev/mahala
+module github.com/semirm-dev/mahala-backend
 
 go 1.20
 

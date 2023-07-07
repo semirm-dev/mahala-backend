@@ -2,7 +2,7 @@ package errwrapper_test
 
 import (
 	"errors"
-	"github.com/semirm-dev/mahala/internal/errwrapper"
+	"github.com/semirm-dev/mahala-backend/internal/errwrapper"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
